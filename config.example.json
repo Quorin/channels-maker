@@ -1,0 +1,113 @@
+{
+  "server_name": "Example",
+  "auth": {
+    "auth_server": "master",
+    "traffic_profile": 1,
+    "ports": [
+      {
+        "port": 60000,
+        "p2p_port": 60100
+      }
+    ]
+  },
+  "channels": {
+    "common_maps": [
+      [1, 2, 3],
+      [4, 5, 6]
+    ],
+    "settings": [
+      {
+        "channel_id": 1,
+        "port": 61000,
+        "p2p_port": 62000,
+        "override_maps": null
+      },
+      {
+        "channel_id": 2,
+        "port": 61100,
+        "p2p_port": 62100,
+        "override_maps": null
+      },
+      {
+        "channel_id": 99,
+        "port": 61099,
+        "p2p_port": 62099,
+        "override_maps": [
+          [81]
+        ]
+      }
+    ]
+  },
+  "common": {
+    "table_postfix": "",
+    "passes_per_sec": 25,
+    "db_ip": "127.0.0.1",
+    "db_port": 3306,
+    "save_event_second_cycle": 180,
+    "ping_event_second_cycle": 180,
+    "view_range": 8000,
+    "locale_service": "poland",
+    "speedhack_limit_count": 300,
+    "speedhack_limit_bonus": 80,
+    "pk_protect_level": 15,
+    "mall_url": "",
+    "traffic_profile": 1,
+    "test_server": 0,
+    "max_level": 105,
+    "disable_item_bonus_change_time": 1
+  },
+  "db": {
+    "bind_port": 15000,
+    "db_sleep_msec": 10,
+    "client_heart_fps": 10,
+    "hash_player_life_sec": 600,
+    "player_delete_level_limit": 70,
+    "player_id_start": 1,
+    "item_id_range": {
+      "start": 10000001,
+      "end": 20000000
+    },
+    "test_server": 0
+  },
+  "adminpage_ips": {
+    "adminpage_ip": "127.0.0.1",
+    "adminpage_ip1": "127.0.0.1",
+    "adminpage_ip2": "127.0.0.1",
+    "adminpage_ip3": "127.0.0.1",
+    "password": "givemethemoney"
+  },
+  "databases": {
+    "player": {
+      "ip": "127.0.0.1",
+      "port": "3306",
+      "database": "player",
+      "user": "root",
+      "password": "password",
+      "sock": "/tmp/mysqld.sock"
+    },
+    "common": {
+      "ip": "127.0.0.1",
+      "port": "3306",
+      "database": "common",
+      "user": "root",
+      "password": "password",
+      "sock": "/tmp/mysqld.sock"
+    },
+    "log": {
+      "ip": "127.0.0.1",
+      "port": "3306",
+      "database": "log",
+      "user": "root",
+      "password": "password",
+      "sock": "/tmp/mysqld.sock"
+    },
+    "account": {
+      "ip": "127.0.0.1",
+      "port": "3306",
+      "database": "account",
+      "user": "root",
+      "password": "password",
+      "sock": "/tmp/mysqld.sock"
+    }
+  }
+}
