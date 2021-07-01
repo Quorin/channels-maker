@@ -1,7 +1,10 @@
 use crate::config::Config;
+use crate::error::MakerResult;
 
 mod config;
+mod error;
 
-fn main() {
-    println!("{:?}", serde_json::from_str::<Config>(&std::fs::read_to_string("./config.json").unwrap()).unwrap())
+fn main() -> MakerResult<()> {
+    let config = Config::read_config()?;
+    Ok(())
 }

@@ -1,4 +1,7 @@
 use serde::{Serialize, Deserialize};
+use crate::error::{MakerResult, MakerError};
+use std::path::Path;
+use std::fs::read_to_string;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -208,4 +211,16 @@ pub struct ItemIdRange {
 
     #[serde(rename = "end")]
     end: i64,
+}
+
+impl Config {
+    pub fn read_config() -> MakerResult<Config> {
+        let file = Path::new("./config.json");
+        if !file.exists() {
+            return Err(MakerError::NotFoundConfig);
+        }
+
+        let data = read_to_string(file)?;
+        Ok(serde_json::from_str::<Config>(&*data)?)
+    }
 }
