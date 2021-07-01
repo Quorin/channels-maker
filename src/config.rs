@@ -144,20 +144,20 @@ pub struct Common {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Databases {
     #[serde(rename = "player")]
-    player: Account,
+    player: Database,
 
     #[serde(rename = "common")]
-    common: Account,
+    common: Database,
 
     #[serde(rename = "log")]
-    log: Account,
+    log: Database,
 
     #[serde(rename = "account")]
-    account: Account,
+    account: Database,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Account {
+pub struct Database {
     #[serde(rename = "ip")]
     ip: String,
 
