@@ -1,3 +1,5 @@
+use std::ffi::OsString;
+
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -6,8 +8,10 @@ pub enum MakerError {
     NotFoundConfig,
     #[error("config.json file is malformed")]
     UnprocessableConfig(#[from] serde_json::Error),
-    #[error("cannot read config.json file")]
-    Read(#[from] std::io::Error),
+    #[error("cannot read file or directory")]
+    Io(#[from] std::io::Error),
+    #[error("before execution you have to delete: {0:?}")]
+    DirectoryNotEmpty(Vec<OsString>),
 }
 
 pub type MakerResult<T> = Result<T, MakerError>;
