@@ -22,6 +22,6 @@ fn main() -> MakerResult<()> {
     let opts: Opts = Opts::parse();
     let config = Config::read_config()?;
     let maker = Maker::new(config)?;
-    maker.check_current_directory()?;
+    maker.check_current_directory(opts.force)?;
     Ok(())
 }
