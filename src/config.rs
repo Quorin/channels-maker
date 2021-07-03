@@ -1,7 +1,20 @@
-use serde::{Serialize, Deserialize};
-use crate::error::{MakerResult, MakerError};
-use std::path::Path;
+use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
+use std::path::Path;
+
+use snafu::{ResultExt, Snafu};
+
+#[derive(Debug, Snafu)]
+pub enum ConfigError {
+    #[snafu(display("config.json file not found"))]
+    NotFound,
+    #[snafu(display("cannot read config file: {}", source))]
+    Read { source: std::io::Error },
+    #[snafu(display("cannot parse config file: {}", source))]
+    Parse { source: serde_json::Error },
+}
+
+pub type ConfigResult<T, E = ConfigError> = std::result::Result<T, E>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -214,13 +227,13 @@ pub struct ItemIdRange {
 }
 
 impl Config {
-    pub fn read_config() -> MakerResult<Config> {
+    pub fn read_config() -> ConfigResult<Config> {
         let file = Path::new("./config.json");
         if !file.exists() {
-            return Err(MakerError::NotFoundConfig);
+            return Err(ConfigError::NotFound);
         }
 
-        let data = read_to_string(file)?;
-        Ok(serde_json::from_str::<Config>(&*data)?)
+        let data = read_to_string(file).context(Read)?;
+        Ok(serde_json::from_str::<Config>(&*data).context(Parse)?)
     }
 }
