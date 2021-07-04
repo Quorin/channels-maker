@@ -6,7 +6,7 @@ use snafu::{ResultExt, Snafu};
 
 #[derive(Debug, Snafu)]
 pub enum ConfigError {
-    #[snafu(display("config.json file not found"))]
+    #[snafu(display("{} file not found", crate::CONFIG_FILE))]
     NotFound,
     #[snafu(display("cannot read config file: {}", source))]
     Read { source: std::io::Error },
@@ -228,7 +228,8 @@ pub struct ItemIdRange {
 
 impl Config {
     pub fn read_config() -> ConfigResult<Config> {
-        let file = Path::new("./config.json");
+        let path = format!("./{}", crate::CONFIG_FILE);
+        let file = Path::new(&path);
         if !file.exists() {
             return Err(ConfigError::NotFound);
         }

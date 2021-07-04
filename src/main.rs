@@ -20,6 +20,8 @@ struct Opts {
     force: bool,
 }
 
+pub(crate) const CONFIG_FILE: &'static str = "config.json";
+
 fn main() {
     let opts: Opts = Opts::parse();
     let config = match Config::read_config() {

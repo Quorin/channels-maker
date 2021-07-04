@@ -36,7 +36,7 @@ fn get_current_file_name() -> String {
 lazy_static! {
     static ref ALLOWED_DIRECTORIES: Vec<PathBuf> = vec![PathBuf::from("./share")];
     static ref ALLOWED_FILES: Vec<PathBuf> = vec![
-        PathBuf::from("./config.json"),
+        PathBuf::from(format!("./{}", crate::CONFIG_FILE)),
         PathBuf::from(get_current_file_name())
     ];
 }
