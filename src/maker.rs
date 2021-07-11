@@ -33,6 +33,11 @@ pub enum MakerError {
         source: std::io::Error,
         path: PathBuf,
     },
+    CreateSymlink {
+        source: std::io::Error,
+        original: PathBuf,
+        link: PathBuf,
+    },
 }
 
 type MakerResult<T, E = MakerError> = std::result::Result<T, E>;
@@ -49,6 +54,8 @@ lazy_static! {
         PathBuf::from(format!("./{}", crate::CONFIG_FILE)),
         PathBuf::from(get_current_file_name())
     ];
+    static ref GAME_SHARE_SYMLINKS: Vec<&'static str> = vec!["data", "package", "CMD", "locale"];
+    static ref AUTH_SHARE_SYMLINKS: Vec<&'static str> = vec!["data", "locale"];
 }
 
 #[derive(Debug)]
@@ -145,6 +152,46 @@ impl Maker {
                         path: format!("./{}/part{}/mark", x.channel_dir_name(), part_id),
                     },
                 )?;
+
+                //symlinks
+                for s in GAME_SHARE_SYMLINKS.iter() {
+                    std::os::unix::fs::symlink(
+                        format!("../../share/{}", s),
+                        format!("./{}/part{}/{}", x.channel_dir_name(), part_id, s),
+                    )
+                    .context(CreateSymlink {
+                        original: format!("../../share/{}", s),
+                        link: format!("./{}/part{}/{}", x.channel_dir_name(), part_id, s),
+                    })?;
+                }
+
+                // symlink game
+                std::os::unix::fs::symlink(
+                    "../../share/game",
+                    match x.rename.clone() {
+                        None => format!(
+                            "./{}/part{}/game{}_{}",
+                            x.channel_dir_name(),
+                            part_id,
+                            x.channel_id,
+                            part_id
+                        ),
+                        Some(val) => format!("./{}/part{}/{}", x.channel_dir_name(), part_id, val),
+                    },
+                )
+                .context(CreateSymlink {
+                    original: "../../share/game",
+                    link: match x.rename.clone() {
+                        None => format!(
+                            "./{}/part{}/game{}_{}",
+                            x.channel_dir_name(),
+                            part_id,
+                            x.channel_id,
+                            part_id
+                        ),
+                        Some(val) => format!("./{}/part{}/{}", x.channel_dir_name(), part_id, val),
+                    },
+                })?;
 
                 fs::write(
                     format!("./{}/part{}/CONFIG", x.channel_dir_name(), part_id),
@@ -251,6 +298,25 @@ g_bDisableItemBonusChangeTime: {}
             create_dir(format!("./auth/{}/log", x)).context(CreateDirectory {
                 path: format!("./auth/{}/log", x),
             })?;
+
+            //symlinks
+            for s in AUTH_SHARE_SYMLINKS.iter() {
+                std::os::unix::fs::symlink(
+                    format!("../../share/{}", s),
+                    format!("./auth/{}/{}", x, s),
+                )
+                .context(CreateSymlink {
+                    original: format!("../../share/{}", s),
+                    link: format!("./auth/{}/{}", x, s),
+                })?;
+            }
+
+            // symlink auth
+            std::os::unix::fs::symlink("../../share/game", format!("./auth/{}/auth{}", x, x))
+                .context(CreateSymlink {
+                    original: "../../share/game",
+                    link: format!("./auth/{}/auth{}", x, x),
+                })?;
 
             fs::write(
                 format!("./auth/{}/CONFIG", x),
