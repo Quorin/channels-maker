@@ -29,12 +29,17 @@
         "override_maps": null
       },
       {
+        "rename": "api",
+        "channel_id": 98,
+        "port": 61098,
+        "p2p_port": 62098,
+        "override_maps": [[]]
+      },
+      {
         "channel_id": 99,
         "port": 61099,
         "p2p_port": 62099,
-        "override_maps": [
-          [81]
-        ]
+        "override_maps": [[81]]
       }
     ]
   },

@@ -36,4 +36,6 @@ fn main() {
         Ok(v) => v,
         Err(err) => return println!("Error: {}", err.to_string()),
     };
+
+    maker.make().unwrap();
 }
