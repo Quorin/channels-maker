@@ -154,6 +154,72 @@ impl Maker {
             link: format!("./db/db_{}", self.config.server_name.to_lowercase()),
         })?;
 
+        //
+
+        fs::write(
+            format!("./db/conf.txt"),
+            format!(
+                "BIND_PORT = {}
+SQL_ACCOUNT = \"{} {} {} {} {} {}\"
+SQL_COMMON = \"{} {} {} {} {} {}\"
+SQL_HOTBACKUP = \"{} {} {} {} {} {}\"
+SQL_PLAYER = \"{} {} {} {} {} {}\"
+TABLE_POSTFIX = \"{}\"
+DB_SLEEP_MSEC = {}
+CLIENT_HEART_FPS = {}
+HASH_PLAYER_LIFE_SEC = {}
+PLAYER_DELETE_LEVEL_LIMIT = {}
+PLAYER_ID_START = {}
+BACKUP_LIMIT_SEC = 3600
+WELCOME_MSG = \"DB Server has been started\"
+ITEM_ID_RANGE = {} {}
+TEST_SERVER = {}
+",
+                self.config.db.bind_port,
+                // account_sql
+                self.config.databases.account.ip,
+                self.config.databases.account.user,
+                self.config.databases.account.password,
+                self.config.databases.account.database,
+                self.config.databases.account.port,
+                self.config.databases.account.sock,
+                // common_sql
+                self.config.databases.common.ip,
+                self.config.databases.common.user,
+                self.config.databases.common.password,
+                self.config.databases.common.database,
+                self.config.databases.common.port,
+                self.config.databases.common.sock,
+                // hotbackup_sql
+                self.config.databases.hotbackup.ip,
+                self.config.databases.hotbackup.user,
+                self.config.databases.hotbackup.password,
+                self.config.databases.hotbackup.database,
+                self.config.databases.hotbackup.port,
+                self.config.databases.hotbackup.sock,
+                // player_sql
+                self.config.databases.player.ip,
+                self.config.databases.player.user,
+                self.config.databases.player.password,
+                self.config.databases.player.database,
+                self.config.databases.player.port,
+                self.config.databases.player.sock,
+                //
+                self.config.common.table_postfix,
+                self.config.db.db_sleep_msec,
+                self.config.db.client_heart_fps,
+                self.config.db.hash_player_life_sec,
+                self.config.db.player_delete_level_limit,
+                self.config.db.player_id_start,
+                self.config.db.item_id_range.start,
+                self.config.db.item_id_range.end,
+                self.config.db.test_server,
+            ),
+        )
+        .context(CreateFile {
+            path: format!("./db/conf.txt"),
+        })?;
+
         Ok(())
     }
 

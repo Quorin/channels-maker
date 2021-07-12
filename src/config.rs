@@ -165,6 +165,9 @@ pub struct Databases {
     #[serde(rename = "common")]
     pub common: Database,
 
+    #[serde(rename = "hotbackup")]
+    pub hotbackup: Database,
+
     #[serde(rename = "log")]
     pub log: Database,
 

@@ -98,6 +98,14 @@
       "password": "password",
       "sock": "/tmp/mysqld.sock"
     },
+    "hotbackup": {
+      "ip": "127.0.0.1",
+      "port": "3306",
+      "database": "hotbackup",
+      "user": "root",
+      "password": "password",
+      "sock": "/tmp/mysqld.sock"
+    },
     "log": {
       "ip": "127.0.0.1",
       "port": "3306",
