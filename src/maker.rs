@@ -56,6 +56,15 @@ lazy_static! {
     ];
     static ref GAME_SHARE_SYMLINKS: Vec<&'static str> = vec!["data", "package", "CMD", "locale"];
     static ref AUTH_SHARE_SYMLINKS: Vec<&'static str> = vec!["data", "locale"];
+    static ref DB_SHARE_SYMLINKS: Vec<&'static str> = vec![
+        "data",
+        "package",
+        "locale",
+        "item_proto.txt",
+        "item_names.txt",
+        "mob_proto.txt",
+        "mob_names.txt"
+    ];
 }
 
 #[derive(Debug)]
@@ -118,6 +127,32 @@ impl Maker {
                 }
             }
         }
+
+        Ok(())
+    }
+
+    fn make_db(&self) -> MakerResult<()> {
+        create_dir("db").context(CreateDirectory { path: "db" })?;
+
+        //symlinks
+        for s in DB_SHARE_SYMLINKS.iter() {
+            std::os::unix::fs::symlink(format!("../share/{}", s), format!("./db/{}", s)).context(
+                CreateSymlink {
+                    original: format!("../share/{}", s),
+                    link: format!("./db/{}", s),
+                },
+            )?;
+        }
+
+        // symlink db
+        std::os::unix::fs::symlink(
+            "../share/db",
+            format!("./db/db_{}", self.config.server_name.to_lowercase()),
+        )
+        .context(CreateSymlink {
+            original: "../share/db",
+            link: format!("./db/db_{}", self.config.server_name.to_lowercase()),
+        })?;
 
         Ok(())
     }
@@ -397,6 +432,7 @@ g_bDisableItemBonusChangeTime: {}
 
     pub fn make(&self) -> MakerResult<()> {
         self.make_auth()?;
-        self.make_channels()
+        self.make_channels()?;
+        self.make_db()
     }
 }
