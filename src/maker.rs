@@ -184,11 +184,20 @@ impl Maker {
             }
 
             // symlink auth
-            std::os::unix::fs::symlink("../../share/game", format!("./auth/{}/auth{}", x, x))
-                .context(CreateSymlink {
-                    original: "../../share/game",
-                    link: format!("./auth/{}/auth{}", x, x),
-                })?;
+            std::os::unix::fs::symlink(
+                format!(
+                    "../../share/game_{}",
+                    self.config.server_name.to_lowercase()
+                ),
+                format!("./auth/{}/auth{}", x, x),
+            )
+            .context(CreateSymlink {
+                original: format!(
+                    "../../share/game_{}",
+                    self.config.server_name.to_lowercase()
+                ),
+                link: format!("./auth/{}/auth{}", x, x),
+            })?;
 
             fs::write(
                 format!("./auth/{}/CONFIG", x),
@@ -305,7 +314,10 @@ TRAFFIC_PROFILE: {}
 
                 // symlink game
                 std::os::unix::fs::symlink(
-                    "../../share/game",
+                    format!(
+                        "../../share/game_{}",
+                        self.config.server_name.to_lowercase()
+                    ),
                     match x.rename.clone() {
                         None => format!(
                             "./{}/part{}/game{}_{}",
@@ -318,7 +330,10 @@ TRAFFIC_PROFILE: {}
                     },
                 )
                 .context(CreateSymlink {
-                    original: "../../share/game",
+                    original: format!(
+                        "../../share/game_{}",
+                        self.config.server_name.to_lowercase()
+                    ),
                     link: match x.rename.clone() {
                         None => format!(
                             "./{}/part{}/game{}_{}",
