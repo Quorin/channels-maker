@@ -122,10 +122,113 @@ impl Maker {
         Ok(())
     }
 
-    pub fn make(&self) -> MakerResult<()> {
+    fn make_auth(&self) -> MakerResult<()> {
         // auth
         create_dir("auth").context(CreateDirectory { path: "auth" })?;
 
+        // auth channels
+        for x in 1..=self.config.auth.ports.len() {
+            create_dir(format!("./auth/{}", x)).context(CreateDirectory {
+                path: format!("./auth/{}", x),
+            })?;
+
+            create_dir(format!("./auth/{}/log", x)).context(CreateDirectory {
+                path: format!("./auth/{}/log", x),
+            })?;
+
+            //symlinks
+            for s in AUTH_SHARE_SYMLINKS.iter() {
+                std::os::unix::fs::symlink(
+                    format!("../../share/{}", s),
+                    format!("./auth/{}/{}", x, s),
+                )
+                .context(CreateSymlink {
+                    original: format!("../../share/{}", s),
+                    link: format!("./auth/{}/{}", x, s),
+                })?;
+            }
+
+            // symlink auth
+            std::os::unix::fs::symlink("../../share/game", format!("./auth/{}/auth{}", x, x))
+                .context(CreateSymlink {
+                    original: "../../share/game",
+                    link: format!("./auth/{}/auth{}", x, x),
+                })?;
+
+            fs::write(
+                format!("./auth/{}/CONFIG", x),
+                format!(
+                    "CHANNEL: {}
+HOSTNAME: auth{}
+PORT: {}
+P2P_PORT: {}
+DB_ADDR: {}
+DB_PORT: {}
+PLAYER_SQL: {} {} {} {} {} {}
+COMMON_SQL: {} {} {} {} {} {}
+LOG_SQL: {} {} {} {} {} {}
+TABLE_POSTFIX: {}
+PASSES_PER_SEC: {}
+PING_EVENT_SECOND_CYCLE: {}
+ADMINPAGE_PASSWORD: {}
+adminpage_ip: {}
+adminpage_ip1: {}
+adminpage_ip2: {}
+adminpage_ip3: {}
+AUTH_SERVER: {}
+TRAFFIC_PROFILE: {}
+",
+                    x,
+                    x,
+                    self.config.auth.ports[(x - 1)].port,
+                    self.config.auth.ports[(x - 1)].p2p_port,
+                    self.config.common.db_ip,
+                    self.config.common.db_port,
+                    // player_sql
+                    self.config.databases.account.ip,
+                    self.config.databases.account.user,
+                    self.config.databases.account.password,
+                    self.config.databases.account.database,
+                    self.config.databases.account.port,
+                    self.config.databases.account.sock,
+                    // common_sql
+                    self.config.databases.common.ip,
+                    self.config.databases.common.user,
+                    self.config.databases.common.password,
+                    self.config.databases.common.database,
+                    self.config.databases.common.port,
+                    self.config.databases.common.sock,
+                    // log_sql
+                    self.config.databases.log.ip,
+                    self.config.databases.log.user,
+                    self.config.databases.log.password,
+                    self.config.databases.log.database,
+                    self.config.databases.log.port,
+                    self.config.databases.log.sock,
+                    //
+                    self.config.common.table_postfix,
+                    self.config.common.passes_per_sec,
+                    self.config.common.ping_event_second_cycle,
+                    // adminpage
+                    self.config.adminpage_ips.password,
+                    self.config.adminpage_ips.adminpage_ip,
+                    self.config.adminpage_ips.adminpage_ip1,
+                    self.config.adminpage_ips.adminpage_ip2,
+                    self.config.adminpage_ips.adminpage_ip3,
+                    //
+                    self.config.auth.auth_server,
+                    self.config.auth.traffic_profile
+                ),
+            )
+            .context(CreateFile {
+                path: format!("./auth/{}/CONFIG", x),
+            })?
+        }
+
+        Ok(())
+    }
+
+    fn make_channels(&self) -> MakerResult<()> {
         // channels
         for x in &self.config.channels.settings {
             create_dir(format!("./{}", x.channel_dir_name())).context(CreateDirectory {
@@ -289,105 +392,11 @@ g_bDisableItemBonusChangeTime: {}
             }
         }
 
-        // auth channels
-        for x in 1..=self.config.auth.ports.len() {
-            create_dir(format!("./auth/{}", x)).context(CreateDirectory {
-                path: format!("./auth/{}", x),
-            })?;
-
-            create_dir(format!("./auth/{}/log", x)).context(CreateDirectory {
-                path: format!("./auth/{}/log", x),
-            })?;
-
-            //symlinks
-            for s in AUTH_SHARE_SYMLINKS.iter() {
-                std::os::unix::fs::symlink(
-                    format!("../../share/{}", s),
-                    format!("./auth/{}/{}", x, s),
-                )
-                .context(CreateSymlink {
-                    original: format!("../../share/{}", s),
-                    link: format!("./auth/{}/{}", x, s),
-                })?;
-            }
-
-            // symlink auth
-            std::os::unix::fs::symlink("../../share/game", format!("./auth/{}/auth{}", x, x))
-                .context(CreateSymlink {
-                    original: "../../share/game",
-                    link: format!("./auth/{}/auth{}", x, x),
-                })?;
-
-            fs::write(
-                format!("./auth/{}/CONFIG", x),
-                format!(
-                    "CHANNEL: {}
-HOSTNAME: auth{}
-PORT: {}
-P2P_PORT: {}
-DB_ADDR: {}
-DB_PORT: {}
-PLAYER_SQL: {} {} {} {} {} {}
-COMMON_SQL: {} {} {} {} {} {}
-LOG_SQL: {} {} {} {} {} {}
-TABLE_POSTFIX: {}
-PASSES_PER_SEC: {}
-PING_EVENT_SECOND_CYCLE: {}
-ADMINPAGE_PASSWORD: {}
-adminpage_ip: {}
-adminpage_ip1: {}
-adminpage_ip2: {}
-adminpage_ip3: {}
-AUTH_SERVER: {}
-TRAFFIC_PROFILE: {}
-",
-                    x,
-                    x,
-                    self.config.auth.ports[(x - 1)].port,
-                    self.config.auth.ports[(x - 1)].p2p_port,
-                    self.config.common.db_ip,
-                    self.config.common.db_port,
-                    // player_sql
-                    self.config.databases.account.ip,
-                    self.config.databases.account.user,
-                    self.config.databases.account.password,
-                    self.config.databases.account.database,
-                    self.config.databases.account.port,
-                    self.config.databases.account.sock,
-                    // common_sql
-                    self.config.databases.common.ip,
-                    self.config.databases.common.user,
-                    self.config.databases.common.password,
-                    self.config.databases.common.database,
-                    self.config.databases.common.port,
-                    self.config.databases.common.sock,
-                    // log_sql
-                    self.config.databases.log.ip,
-                    self.config.databases.log.user,
-                    self.config.databases.log.password,
-                    self.config.databases.log.database,
-                    self.config.databases.log.port,
-                    self.config.databases.log.sock,
-                    //
-                    self.config.common.table_postfix,
-                    self.config.common.passes_per_sec,
-                    self.config.common.ping_event_second_cycle,
-                    // adminpage
-                    self.config.adminpage_ips.password,
-                    self.config.adminpage_ips.adminpage_ip,
-                    self.config.adminpage_ips.adminpage_ip1,
-                    self.config.adminpage_ips.adminpage_ip2,
-                    self.config.adminpage_ips.adminpage_ip3,
-                    //
-                    self.config.auth.auth_server,
-                    self.config.auth.traffic_profile
-                ),
-            )
-            .context(CreateFile {
-                path: format!("./auth/{}/CONFIG", x),
-            })?
-        }
-
         Ok(())
+    }
+
+    pub fn make(&self) -> MakerResult<()> {
+        self.make_auth()?;
+        self.make_channels()
     }
 }
