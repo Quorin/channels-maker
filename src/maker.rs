@@ -511,9 +511,52 @@ g_bDisableItemBonusChangeTime: {}
         Ok(())
     }
 
+    fn make_start_script(&self) -> MakerResult<()> {
+        let mut start_script = format!(
+            "#!/bin/sh
+cd /home/{}/db && ./db_{}
+sleep 3\n",
+            self.config.server_name, self.config.server_name
+        );
+
+        for x in &self.config.channels.settings {
+            let maps = x.get_map_ids(&self.config.channels);
+
+            for part_id in 1..=maps.len() {
+                start_script.push_str(&format!(
+                    "cd /home/{}/{}/part{} && ./{}\n",
+                    self.config.server_name,
+                    x.channel_dir_name(),
+                    part_id,
+                    if x.rename.is_none() {
+                        format!("game{}_{}", x.channel_id, part_id)
+                    } else {
+                        x.rename.clone().unwrap()
+                    }
+                ))
+            }
+        }
+
+        for x in 1..=self.config.auth.ports.len() {
+            start_script.push_str(&format!(
+                "cd /home/{}/auth/{}/ && ./auth{}\n",
+                self.config.server_name, x, x
+            ))
+        }
+
+        start_script.push_str("cd ../..\n");
+
+        fs::write("./start.sh", start_script).context(CreateFile { path: "./start.sh" })?;
+
+        Ok(())
+    }
+
     pub fn make(&self) -> MakerResult<()> {
         self.make_auth()?;
         self.make_channels()?;
-        self.make_db()
+        self.make_db()?;
+        self.make_start_script()?;
+
+        Ok(())
     }
 }
