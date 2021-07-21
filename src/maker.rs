@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::env::current_exe;
 use std::fs::{self, create_dir, remove_dir, remove_file, DirEntry};
 use std::path::PathBuf;
@@ -384,7 +385,7 @@ TRAFFIC_PROFILE: {}
                         "../../share/game_{}",
                         self.config.server_name.to_lowercase()
                     ),
-                    match x.rename.clone() {
+                    match x.rename.as_ref() {
                         None => format!(
                             "./{}/part{}/game{}_{}",
                             x.channel_dir_name(),
@@ -400,7 +401,7 @@ TRAFFIC_PROFILE: {}
                         "../../share/game_{}",
                         self.config.server_name.to_lowercase()
                     ),
-                    link: match x.rename.clone() {
+                    link: match x.rename.as_ref() {
                         None => format!(
                             "./{}/part{}/game{}_{}",
                             x.channel_dir_name(),
@@ -528,10 +529,9 @@ sleep 3\n",
                     self.config.server_name,
                     x.channel_dir_name(),
                     part_id,
-                    if x.rename.is_none() {
-                        format!("game{}_{}", x.channel_id, part_id)
-                    } else {
-                        x.rename.clone().unwrap()
+                    match x.rename {
+                        Some(ref v) => Cow::Borrowed(v),
+                        None => Cow::Owned(format!("game{}_{}", x.channel_id, part_id)),
                     }
                 ))
             }

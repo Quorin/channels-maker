@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::fs::read_to_string;
 use std::path::Path;
+use std::{borrow::Cow, fs::read_to_string};
 
 use snafu::{ResultExt, Snafu};
 
@@ -233,20 +233,18 @@ pub struct ItemIdRange {
 }
 
 impl Setting {
-    pub fn channel_dir_name(&self) -> String {
-        if let Some(rename_value) = self.rename.clone() {
-            return rename_value;
+    pub fn channel_dir_name(&self) -> Cow<str> {
+        match self.rename {
+            Some(ref v) => Cow::Borrowed(v),
+            None => Cow::Owned(format!("channel{}", self.channel_id)),
         }
-
-        return format!("channel{}", self.channel_id);
     }
 
-    pub fn get_map_ids(&self, channels: &Channels) -> Vec<Vec<i64>> {
-        if self.override_maps.is_none() {
-            return channels.common_maps.clone();
+    pub fn get_map_ids<'a>(&'a self, channels: &'a Channels) -> &'a Vec<Vec<i64>> {
+        match self.override_maps {
+            Some(ref v) => v,
+            None => &channels.common_maps,
         }
-
-        self.override_maps.as_ref().unwrap().clone()
     }
 }
 
