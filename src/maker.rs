@@ -515,7 +515,7 @@ g_bDisableItemBonusChangeTime: {}
     fn make_start_script(&self) -> MakerResult<()> {
         let mut start_script = format!(
             "#!/bin/sh
-cd /home/{}/db && ./db_{}
+cd /home/{}/db && ./db_{} &
 sleep 3\n",
             self.config.server_name, self.config.server_name
         );
@@ -525,7 +525,7 @@ sleep 3\n",
 
             for part_id in 1..=maps.len() {
                 start_script.push_str(&format!(
-                    "cd /home/{}/{}/part{} && ./{}\n",
+                    "cd /home/{}/{}/part{} && ./{} &\n",
                     self.config.server_name,
                     x.channel_dir_name(),
                     part_id,
@@ -539,7 +539,7 @@ sleep 3\n",
 
         for x in 1..=self.config.auth.ports.len() {
             start_script.push_str(&format!(
-                "cd /home/{}/auth/{}/ && ./auth{}\n",
+                "cd /home/{}/auth/{}/ && ./auth{} &\n",
                 self.config.server_name, x, x
             ))
         }
