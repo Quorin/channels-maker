@@ -147,11 +147,11 @@ impl Maker {
 
         // symlink db
         std::os::unix::fs::symlink(
-            "../share/db",
+            format!("../share/db_{}", self.config.server_name.to_lowercase()),
             format!("./db/db_{}", self.config.server_name.to_lowercase()),
         )
         .context(CreateSymlink {
-            original: "../share/db",
+            original: format!("../share/db{}", self.config.server_name.to_lowercase()),
             link: format!("./db/db_{}", self.config.server_name.to_lowercase()),
         })?;
 
